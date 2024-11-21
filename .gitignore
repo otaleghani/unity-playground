@@ -27,8 +27,8 @@
 # =============================
 
 # Automatically generated VS/MD/Consulo solution and project files
-*.csproj
-*.unityproj
+# *.csproj
+# *.unityproj
 *.sln
 *.suo
 *.tmp

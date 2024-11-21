@@ -1,14 +1,17 @@
-using UnityEngine;
-using System.Collections;
-using Unity.VisualScripting;
 using System;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
+    // Using the input system
+    InputAction moveAction;
+    InputAction jumpAction;
+
     float horizontalInput;
     float moveSpeed = 8f;
     bool isFacingRight = true;
-    float jumpPower = 4f;
+    float jumpPower = 8f;
     bool isGrounded = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -18,11 +21,14 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+
+        moveAction = InputSystem.actions.FindAction("move");
     }
 
     // Update is called once per frame
     void Update()
     {
+        //System.Console.WriteLine();
        horizontalInput = Input.GetAxis("Horizontal");
        FlipSprite();
        if(Input.GetButtonDown("Jump") && isGrounded) 
