@@ -21,6 +21,8 @@
 **/Assets/  # This line ignores all Assets folders in any subdirectory
 *.PNG
 *.png
+*.JPEG
+*.jpeg
 
 # =============================
 # Unity generated files #
