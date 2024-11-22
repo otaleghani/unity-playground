@@ -65,11 +65,14 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.27f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\PlayerMovementV2.cs" />
-    <Compile Include="Assets\testAnimationsEnds.cs" />
+    <Compile Include="Assets\Scripts\Archive\PlayerMovement.cs" />
+    <Compile Include="Assets\Scripts\Player\PlayerMovementV3.cs" />
+    <Compile Include="Assets\Scripts\Player\PlayerStateManager.cs" />
+    <Compile Include="Assets\Scripts\Archive\testAnimationsEnds.cs" />
+    <Compile Include="Assets\Scripts\Archive\PlayerMovementV2.cs" />
+    <Compile Include="Assets\Scripts\Player\PlayerMovement.cs" />
     <Compile Include="Assets\InputSystem_Actions.cs" />
-    <Compile Include="Assets\PlayerMovement.cs" />
-    <Compile Include="Assets\PlayerMovementV3.cs" />
+    <Compile Include="Assets\Scripts\Player\PlayerAnimator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
