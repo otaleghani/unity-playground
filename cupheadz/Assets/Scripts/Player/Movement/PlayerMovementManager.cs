@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerMovementManager : MonoBehaviour {
   [Header("General")]
   [SerializeField] private bool isFacingRight = true;
-  public bool isGrounded = false;
+  public static bool isGrounded = false;
   
   [Header("Movement proprieties")]
   [SerializeField] private float speed = 4f;
@@ -14,10 +14,14 @@ public class PlayerMovementManager : MonoBehaviour {
   [SerializeField] private float jumpMaxHeight = 2.5f;
   [SerializeField] private float jumpMinHeight = 0.5f;
   [SerializeField] private float jumpTimeToMaxHeight = 0.4f;
-  [SerializeField] private float jumpStateMinTime = 0.05f;
   [SerializeField] private float fallGravityMultiplier = 2f;
-  private bool isJumping;
-  private bool jumpButtonReleased;
+
+  [SerializeField] private float jumpStateMinTime = 0.05f;
+  [SerializeField] private float jumpStateMaxTime = 0.4f;
+  [SerializeField] private float jumpForce = 5.0f;
+
+  public bool isJumping;
+  public bool jumpButtonReleased;
   private float jumpButtonPressedTime;
   private float initialJumpVelocity;
   private float gravity;
@@ -38,12 +42,7 @@ public class PlayerMovementManager : MonoBehaviour {
 
   void Awake() {
     rb = GetComponent<Rigidbody2D>();
-    //stateManager = GetComponent<PlayerStateManager>();
     inputManager = GetComponent<PlayerInputManager>();
-
-    //gravity = -(2 * jumpMaxHeight) / Mathf.Pow(jumpTimeToMaxHeight, 2);
-    //rb.gravityScale = gravity / Physics2D.gravity.y;
-    //initialJumpVelocity = Mathf.Abs(gravity) * jumpTimeToMaxHeight;
   }
 
   void Start() {
@@ -51,36 +50,49 @@ public class PlayerMovementManager : MonoBehaviour {
     inputManager.OnJumpReleased += HandleJumpReleased;
   }
 
-  bool jumpPressed;
+  bool jumpActionHeld;
+  float jumpTimeCounter;
   void HandleJump() {
-    jumpPressed = true;
+    Debug.Log("SUS");
+    if (!isJumping && isGrounded) {
+      Debug.Log("SAS");
+      jumpActionHeld = true;
+      isJumping = true;
+      isGrounded = false;
+      jumpTimeCounter = 0f;
+    }
   }
 
   void HandleJumpReleased() {
-    jumpButtonReleased = true;
+    jumpActionHeld = false;
   }
 
   // Counts how much the character was in the air
-  float jumpTimeCounter;
+  public bool jumpReset;
   public void FixedUpdate() {
     Vector2 updatedPosition = rb.linearVelocity;
 
-    if (isGrounded && jumpPressed) {
-      jumpTimeCounter = jumpTimeToMaxHeight;
-      isJumping = true;
-      jumpPressed = false;
-      updatedPosition.y = jumpRateOfChange;
-    }
-    if (isJumping) {
-      if (jumpTimeCounter > 0) {
-        //updatedPosition.y = sustainedJumpForce;
-        jumpTimeCounter -= Time.fixedDeltaTime;
+
+    if (isJumping && !jumpReset) {
+      if (jumpTimeCounter <= jumpStateMinTime) {
+        updatedPosition.y = jumpForce;
+      }
+      if (jumpTimeCounter <= jumpStateMaxTime && jumpActionHeld) {
+        updatedPosition.y = jumpForce;
       } else {
+        jumpReset = true;
         isJumping = false;
       }
-    }
+      jumpTimeCounter += Time.fixedDeltaTime;
+    } 
 
     rb.linearVelocity = updatedPosition;
   }
 
+  private void OnTriggerEnter2D(Collider2D collision) {
+    Debug.Log("HERE");
+    isGrounded = true;
+    isJumping = false;
+    jumpReset = false;
+  }
 }

@@ -10,7 +10,12 @@ public class PlayerMovingState : IPlayerMovementState {
     inputManager.OnMoveCanceled += HandleMoveCanceled;
   }
 
-  public void UpdateState() {}
+  public void UpdateState() {
+    if (!PlayerMovementManager.isGrounded) {
+      stateManager.ChangeMovementState(new PlayerJumpingState());
+    }
+  }
+
   public void ExitState() {}
 
   public void HandleMoveCanceled() {

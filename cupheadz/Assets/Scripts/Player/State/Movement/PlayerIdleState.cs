@@ -8,14 +8,14 @@ public class PlayerIdleState : IPlayerMovementState {
     this.stateManager = stateManager;
     this.inputManager = inputManager;
     inputManager.OnMove += HandleMove;
+    //inputManager.OnMove += HandleMove;
     //inputManager.OnJump += HandleJump;
   }
 
   // Do I need the UpdateState?
   public void UpdateState() {
-    if (!stateManager.isGrounded) {
-      // You are jumping / falling!!
-      // stateManager.ChangeMovementState(new PlayerJumpingState());
+    if (!PlayerMovementManager.isGrounded) {
+      stateManager.ChangeMovementState(new PlayerJumpingState());
     }
   }
 

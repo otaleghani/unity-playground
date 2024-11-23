@@ -7,6 +7,10 @@ public class PlayerJumpingState : IPlayerMovementState {
     this.inputManager = inputManager;
     // Add handlers
   }
-  public void UpdateState() {}
+  public void UpdateState() {
+    if (PlayerMovementManager.isGrounded) {
+      stateManager.ChangeMovementState(new PlayerIdleState());
+    }
+  }
   public void ExitState() {}
 }
