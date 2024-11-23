@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-class PlayerStateManager : MonoBehaviour {
+class PlayerStateManagerV1 : MonoBehaviour {
   public enum PlayerState {
     Idle,
     Locked,
@@ -30,13 +30,13 @@ class PlayerStateManager : MonoBehaviour {
   private InputAction switchWeaponAction; 
   private InputAction lockAction; 
   private InputAction dashAction; 
-  private PlayerMovement playerMovement;
+  //private PlayerMovement playerMovement;
 
-  public static PlayerState currentState = PlayerState.Idle;
+  public PlayerState currentState = PlayerState.Idle;
   
   private void Awake() {
     playerInput = GetComponent<PlayerInput>();
-    playerMovement = GetComponent<PlayerMovement>();
+    //playerMovement = GetComponent<PlayerMovement>();
 
     moveAction = playerInput.actions["Move"];
     shootAction = playerInput.actions["Shoot"];
@@ -59,10 +59,10 @@ class PlayerStateManager : MonoBehaviour {
         //  if (moveAction.WasPerformedThisFrame()) ChangePlayerState(PlayerState.ShootingAndMoving);
         //} else ChangePlayerState(PlayerState.Shooting);
 
-        if (moveAction.WasPerformedThisFrame()) currentState = PlayerState.Running;
-        if (jumpAction.WasPerformedThisFrame()) currentState = PlayerState.Jumping;
-        if (dashAction.WasPerformedThisFrame()) currentState = PlayerState.Dashing;
-        if (crouchAction.WasPerformedThisFrame()) currentState = PlayerState.Crouching;
+        if (moveAction.WasPerformedThisFrame()) ChangePlayerState(PlayerState.Running);
+        if (jumpAction.WasPerformedThisFrame()) ChangePlayerState(PlayerState.Jumping);
+        if (dashAction.WasPerformedThisFrame()) ChangePlayerState(PlayerState.Dashing);
+        if (crouchAction.WasPerformedThisFrame()) ChangePlayerState(PlayerState.CrouchingIn);
         //if (lockAction.WasPerformedThisFrame()) ChangePlayerState(PlayerState.Locked);
         //if (shootEXAction.WasPerformedThisFrame()) ChangePlayerState(PlayerState.ShootingEX);
         // I will have something like "PlayerCollisionManager.TookDamageThisFrame()" that would 
@@ -71,7 +71,7 @@ class PlayerStateManager : MonoBehaviour {
 
       case PlayerState.Jumping:
         // If you are jumping you cannot do anything asid of dashing
-        if (dashAction.WasPerformedThisFrame()) currentState = PlayerState.Dashing;
+        if (dashAction.WasPerformedThisFrame()) ChangePlayerState(PlayerState.Dashing);
         break;
 
       case PlayerState.Dashing:
@@ -80,21 +80,41 @@ class PlayerStateManager : MonoBehaviour {
         break;
 
       case PlayerState.Running: 
-        if (moveAction.WasReleasedThisFrame()) currentState = PlayerState.Idle;
+        // Possible actions while running: Shooting & Dashing & Jumping
+        if (jumpAction.WasPerformedThisFrame()) ChangePlayerState(PlayerState.Jumping);
+        if (shootAction.WasPerformedThisFrame()) ChangePlayerState(PlayerState.ShootingAndMoving);
+        if (dashAction.WasPerformedThisFrame()) ChangePlayerState(PlayerState.Dashing);
+        if (moveAction.WasReleasedThisFrame()) ChangePlayerState(PlayerState.Idle);
         break;
 
       case PlayerState.Crouching: 
-        if (crouchAction.WasReleasedThisFrame()) {
-          currentState = PlayerState.Idle;
-          PlayerAnimator.OnCrouchActionReleased();
-        }
+        if (crouchAction.WasReleasedThisFrame()) ChangePlayerState(PlayerState.CrouchingOut);
+        //if (currentState.Equals(PlayerState.Idle)) ChangePlayerState(PlayerState.CrouchingIn);
+        //if (crouchAction.WasReleasedThisFrame()) {
+        //  currentState = PlayerState.Idle;
+        //  PlayerAnimator.OnCrouchActionReleased();
+        //}
+        break;
+
+      case PlayerState.CrouchingIn:
+        if (crouchAction.WasReleasedThisFrame()) ChangePlayerState(PlayerState.CrouchingOut);
         break;
     }
   }
 
   public void OnDashingAnimationEnd() {
-    if (playerMovement.isGrounded) {
-      currentState = PlayerState.Idle;
-    } else currentState = PlayerState.Jumping;
+    //if (playerMovement.isGrounded) {
+    //  ChangePlayerState(PlayerState.Idle);
+    //} else ChangePlayerState(PlayerState.Jumping);
+  }
+  public void OnCrouchingAnimationInEnd() {
+    if (currentState.Equals(PlayerState.CrouchingIn)) ChangePlayerState(PlayerState.Crouching);
+  }
+  public void OnCrouchingAnimationOutEnd() {
+    if (currentState.Equals(PlayerState.CrouchingOut)) ChangePlayerState(PlayerState.Idle);
+  }
+
+  public void ChangePlayerState(PlayerState newstate) {
+    currentState = newstate;
   }
 }
