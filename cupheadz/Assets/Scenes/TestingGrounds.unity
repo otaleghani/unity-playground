@@ -434,9 +434,10 @@ GameObject:
   - component: {fileID: 1247762577}
   - component: {fileID: 1247762580}
   - component: {fileID: 1247762582}
-  - component: {fileID: 1247762584}
   - component: {fileID: 1247762583}
+  - component: {fileID: 1247762584}
   - component: {fileID: 1247762585}
+  - component: {fileID: 1247762586}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -854,10 +855,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1247762571}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 556600bb7db23264aad086342ec300c8, type: 3}
+  m_Script: {fileID: 11500000, guid: ccf2d0a6b2541564a8f0a865361d6e82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentState: 0
 --- !u!114 &1247762584
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -867,16 +867,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 1247762571}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f72aa0fa516cca74f84e515747c90cdb, type: 3}
+  m_Script: {fileID: 11500000, guid: 5d0e7799e0786ba4181e23f28434c29c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpForce: 1
-  jumpMaxTime: 0.3
-  jumptSustainedForce: 5
-  isGrounded: 1
-  movementSpeed: 5
-  dashSpeed: 10
 --- !u!114 &1247762585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1247762571}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cd50b63f99c05949bfff600857f3486, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isFacingRight: 1
+  speed: 4
+  acceleration: 1
+  maxFallSpeed: -25
+  jumpMaxHeight: 2.5
+  jumpMinHeight: 0.5
+  jumpTimeToMaxHeight: 0.4
+  fallGravityMultiplier: 2
+  jumpStateMinTime: 0.05
+  jumpStateMaxTime: 0.4
+  jumpForce: 5
+  isJumping: 0
+  jumpButtonReleased: 0
+  jumpReset: 0
+--- !u!114 &1247762586
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
