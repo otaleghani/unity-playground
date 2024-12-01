@@ -3,11 +3,11 @@ using UnityEngine;
 public class PlayerMovementManager : MonoBehaviour {
   [Header("General")]
   [SerializeField] private bool isFacingRight = true;
-  public static bool isGrounded = false;
+  public bool isGrounded = false;
   
   [Header("Movement proprieties")]
   [SerializeField] private float speed = 4f;
-  [SerializeField] private float acceleration = 1f;
+  [SerializeField] private float acceleration = 0f;
   [SerializeField] private float maxFallSpeed = -25f;
 
   [Header("Jump")]
@@ -33,29 +33,34 @@ public class PlayerMovementManager : MonoBehaviour {
 
 
   //private Vector2 moveValue;
-  //[Header("Dash")]
-  //public float dashSpeed = 10f;
+  [Header("Dash")]
+  public float dashSpeed = 10f;
 
   private Rigidbody2D rb;
   //private PlayerStateManager stateManager;
   private PlayerInputManager inputManager;
+  private PlayerStateManager stateManager;
 
   void Awake() {
     rb = GetComponent<Rigidbody2D>();
     inputManager = GetComponent<PlayerInputManager>();
+    stateManager = GetComponent<PlayerStateManager>();
   }
 
   void Start() {
     inputManager.OnJump += HandleJump;
     inputManager.OnJumpReleased += HandleJumpReleased;
+    inputManager.OnMove += HandleMove;
+    inputManager.OnMoveCanceled += HandleMoveCanceled;
+    inputManager.OnDash += HandleDash;
+    inputManager.OnLock += HandleLock;
+    inputManager.OnLockReleased += HandleLockReleased;
   }
 
   bool jumpActionHeld;
   float jumpTimeCounter;
   void HandleJump() {
-    Debug.Log("SUS");
     if (!isJumping && isGrounded) {
-      Debug.Log("SAS");
       jumpActionHeld = true;
       isJumping = true;
       isGrounded = false;
@@ -67,32 +72,94 @@ public class PlayerMovementManager : MonoBehaviour {
     jumpActionHeld = false;
   }
 
+  void HandleMove(Vector2 mov) {
+    acceleration = mov.x;
+  }
+  void HandleMoveCanceled() {
+    acceleration = 0f;
+  }
+
+  private bool isLocked = false;
+  void HandleLock() {
+    isLocked = true;
+  }
+  void HandleLockReleased() {
+    isLocked = false;
+  }
+
+  float dashCooldown;
+  float dashMaxCooldown = 1f;
+  public bool isDashingCooldown = false;
+  public bool isDashing = false;
+  void HandleDash() {
+    isDashing = true;
+  }
+
   // Counts how much the character was in the air
   public bool jumpReset;
   public void FixedUpdate() {
-    Vector2 updatedPosition = rb.linearVelocity;
+    if (!isLocked) {
+      Vector2 updatedPosition = rb.linearVelocity;
 
+      // handle jump
+      if (isJumping && !jumpReset) {
+        if (jumpTimeCounter <= jumpStateMinTime) {
+          updatedPosition.y = jumpForce;
+        }
+        if (jumpTimeCounter <= jumpStateMaxTime && jumpActionHeld) {
+          updatedPosition.y = jumpForce;
+        } else {
+          jumpReset = true;
+          isJumping = false;
+        }
+        jumpTimeCounter += Time.fixedDeltaTime;
+      } 
 
-    if (isJumping && !jumpReset) {
-      if (jumpTimeCounter <= jumpStateMinTime) {
-        updatedPosition.y = jumpForce;
+      // handle movement
+      updatedPosition.x = speed * acceleration;
+
+      // handle dashing
+      if (isDashing && !isDashingCooldown) {
+        updatedPosition.x = dashSpeed;
+      } 
+
+      if (isDashingCooldown) {
+        dashCooldown -= Time.fixedDeltaTime;
       }
-      if (jumpTimeCounter <= jumpStateMaxTime && jumpActionHeld) {
-        updatedPosition.y = jumpForce;
-      } else {
-        jumpReset = true;
-        isJumping = false;
+      if (dashCooldown <= 0) {
+        isDashingCooldown = false;
       }
-      jumpTimeCounter += Time.fixedDeltaTime;
-    } 
 
-    rb.linearVelocity = updatedPosition;
+      rb.linearVelocity = updatedPosition;
+    }
+    FlipCharacter();
+  }
+
+  void FlipCharacter() {
+    if (isFacingRight && acceleration < 0f ||
+    !isFacingRight && acceleration > 0f) {
+      isFacingRight = !isFacingRight;
+      Vector3 ls = transform.localScale;
+      ls.x *= -1f;
+      dashSpeed *= -1f;
+      transform.localScale = ls;
+    }
   }
 
   private void OnTriggerEnter2D(Collider2D collision) {
-    Debug.Log("HERE");
     isGrounded = true;
     isJumping = false;
     jumpReset = false;
+  }
+
+  public void OnDashingAnimationEnd() {
+    isDashing = false;
+    isDashingCooldown = true;
+    dashCooldown = dashMaxCooldown;
+    if (isGrounded) {
+      stateManager.ChangeMovementState(new PlayerIdleState());
+    } else {
+      stateManager.ChangeMovementState(new PlayerJumpingState());
+    }
   }
 }

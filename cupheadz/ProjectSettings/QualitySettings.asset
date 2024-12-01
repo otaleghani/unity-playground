@@ -277,7 +277,7 @@ QualitySettings:
     PS5: 4
     Stadia: 4
     Standalone: 0
-    WebGL: 2
+    WebGL: 0
     Windows Store Apps: 4
     XboxOne: 4
     iPhone: 1

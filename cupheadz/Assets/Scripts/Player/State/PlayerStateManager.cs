@@ -1,9 +1,7 @@
 using UnityEngine;
 
 public class PlayerStateManager : MonoBehaviour {
-
-  //private PlayerMovementManager movementManager;
-  //public bool isGrounded = false;
+  private PlayerMovementManager movementManager;
 
   private PlayerInputManager inputManager;
 
@@ -12,26 +10,26 @@ public class PlayerStateManager : MonoBehaviour {
 
   void Awake() {
     inputManager = GetComponent<PlayerInputManager>();
-    //movementManager = GetComponent<PlayerMovementManager>();
+    movementManager = GetComponent<PlayerMovementManager>();
 
     movementState = new PlayerIdleState();
+    actionState = new PlayerNoneState();
   }
 
   void Start() {
-    movementState.EnterState(this, inputManager);
-    //isGrounded
-    // I could do the same here for the movement
+    movementState.EnterState(this, inputManager, movementManager);
+    actionState.EnterState(this, inputManager);
   }
 
-  void Update() {
+  void FixedUpdate() {
     movementState.UpdateState();
-    //Debug.Log(movementState);
+    actionState.UpdateState();
   }
 
   public void ChangeMovementState(IPlayerMovementState newState) {
     movementState.ExitState();
     movementState = newState;
-    movementState.EnterState(this, inputManager);
+    movementState.EnterState(this, inputManager, movementManager);
   }
 
   public void ChangeActionState(IPlayerActionState newState) {
